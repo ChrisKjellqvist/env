@@ -10,14 +10,14 @@
 " :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
 set nocompatible
 filetype off
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" Start Vundle plugin list.
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'AndrewRadev/linediff.vim'
-Plugin 'Konfekt/FastFold'
+call plug#begin()
+Plug 'AndrewRadev/linediff.vim'
+Plug 'Konfekt/FastFold'
+" Plugin for supporting language servers
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+call plug#end()
+
 " End Vundle plugin list.
-call vundle#end()
 filetype plugin indent on
 " End Vundle plugin manager.
 
@@ -35,17 +35,17 @@ set foldmethod=syntax
 
 " Highlight column 81
 " https://stackoverflow.com/a/13731714
-highlight ColorColumn ctermbg=233 guibg=#121212
-let &colorcolumn="81"
+"highlight ColorColumn ctermbg=233 guibg=#121212
+"let &colorcolumn="81"
 
 " Highlight tabs and trailing whitespace
 " https://stackoverflow.com/a/4617156
-highlight ExtraWhitespace ctermbg=235 guibg=#262626
-match ExtraWhitespace /\s\+$\|\t/
+"highlight ExtraWhitespace ctermbg=235 guibg=#262626
+"match ExtraWhitespace /\s\+$\|\t/
 " For some reason, we have to add an explicit autocmd to match extra
 " whitespace when we create a new window. I haven't heard of anyone else
 " encountering this problem.
-au WinNew * match ExtraWhitespace /\s\+$\|\t/
+"au WinNew * match ExtraWhitespace /\s\+$\|\t/
 
 " Other settings.
 set textwidth=0
@@ -67,21 +67,21 @@ au FileType gitcommit setlocal textwidth=72
 " Enable hard tabs for Makefiles.
 au FileType make setlocal noexpandtab tabstop=8
 
-" C#
-" http://codito.in/c-and-vim/
-au FileType cs setlocal foldmethod=marker
-au FileType cs setlocal foldmarker={,}
-" Remap zuz command from Konfekt/FastFold
-au FileType cs nmap zuz :set<Space>foldmethod=marker<CR><Plug>(FastFoldUpdate)
-
 " Markdown
 au FileType markdown setlocal textwidth=72
 
-" Coq
-au FileType coq setlocal tabstop=8
-
 " Python
-au Filetype python setlocal shiftwidth=4 softtabstop=4 foldmethod=indent
+au Filetype python setlocal shiftwidth=2 softtabstop=2 foldmethod=indent
 
-" Java
-au Filetype java setlocal shiftwidth=4 softtabstop=4 
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+
+inorema <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
